@@ -1,5 +1,9 @@
 # PetPal
 
+Nombres: Carlos Pazmino, LeninCarcelen
+NRC: 1462
+Proyecto: PetPal
+
 API REST en Spring Boot + Kotlin + Gradle, con autenticación vía AWS Cognito y dominio de
 gestión de mascotas: **Owner**, **Pet**, **Vaccine** y **Appointment**.
 
