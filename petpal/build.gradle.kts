@@ -33,14 +33,15 @@ dependencies {
 
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-	// Base de datos: H2 para desarrollo local, Postgres para producción (ej. Neon)
-	runtimeOnly("com.h2database:h2")
+	// Postgres: única base soportada en runtime (database-per-service)
 	runtimeOnly("org.postgresql:postgresql")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+	// H2 solo para tests, nunca en runtime real
+	testImplementation("com.h2database:h2")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
