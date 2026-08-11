@@ -6,7 +6,7 @@ spring:
     url: jdbc:postgresql://${DB_HOST:users-db}:${DB_PORT:5432}/${DB_NAME:users}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USER:users_user}
-    password: ${DB_PASSWORD:users_pass}
+    # password: ${DB_PASSWORD:users_pass}
 
   jpa:
     hibernate:
