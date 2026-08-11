@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "PetPal - Arquitectura Empresarial",
+    "description": "Colección con todos los flujos de los microservicios users y petpal, a través del API Gateway (nginx). Importar junto con el environment 'PetPal - Local'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:9090" },
+    { "key": "user_id", "value": "" },
+    { "key": "owner_id", "value": "" },
+    { "key": "pet_id", "value": "" },
+    { "key": "vaccine_id", "value": "" },
+    { "key": "appointment_id", "value": "" },
+    { "key": "veterinarian_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "description": "Perfiles de usuario, asociados a la identidad de Cognito (claim sub).",
+      "item": [
+        {
+          "name": "Crear mi perfil de usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cognitoSub\": \"{{cognito_sub}}\",\n  \"email\": \"juan.perez@mail.com\",\n  \"fullName\": \"Juan Perez\",\n  \"phone\": \"0999999999\",\n  \"role\": \"Clients\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users/api/users", "host": ["{{base_url}}"], "path": ["users", "api", "users"] },
+            "description": "Registra el perfil de negocio de un usuario ya creado/confirmado en Cognito. Cualquier rol autenticado puede autoregistrarse."
+          }
+        },
+        {
+          "name": "Listar todos los usuarios (Administrator)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/api/users", "host": ["{{base_url}}"], "path": ["users", "api", "users"] },
+            "description": "Solo el rol Administrator puede listar todos los usuarios."
+          }
+        },
+        {
+          "name": "Obtener mi perfil (me)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/api/users/me", "host": ["{{base_url}}"], "path": ["users", "api", "users", "me"] },
+            "description": "Resuelve el perfil del usuario autenticado a partir del sub del token."
+          }
+        },
+        {
+          "name": "Obtener usuario por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users", "api", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cognitoSub\": \"{{cognito_sub}}\",\n  \"email\": \"juan.perez@mail.com\",\n  \"fullName\": \"Juan Perez Actualizado\",\n  \"phone\": \"0988888888\",\n  \"role\": \"Clients\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users", "api", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar usuario (Administrator)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/users/api/users/{{user_id}}", "host": ["{{base_url}}"], "path": ["users", "api", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "GET usuario inexistente -> 404",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/api/users/999999", "host": ["{{base_url}}"], "path": ["users", "api", "users", "999999"] },
+            "description": "Dispara la validación de negocio UserNotFoundException."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Owners",
+      "description": "Dueños de mascotas.",
+      "item": [
+        {
+          "name": "Crear owner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ana Torres\",\n  \"email\": \"ana.torres@mail.com\",\n  \"phone\": \"0987654321\"\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/owners", "host": ["{{base_url}}"], "path": ["petpal", "api", "owners"] }
+          }
+        },
+        {
+          "name": "Listar owners",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/owners", "host": ["{{base_url}}"], "path": ["petpal", "api", "owners"] }
+          }
+        },
+        {
+          "name": "Obtener owner por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/owners/{{owner_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "owners", "{{owner_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar owner",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/petpal/api/owners/{{owner_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "owners", "{{owner_id}}"] }
+          }
+        },
+        {
+          "name": "Crear owner con email duplicado -> 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Ana Torres\",\n  \"email\": \"ana.torres@mail.com\",\n  \"phone\": \"0987654321\"\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/owners", "host": ["{{base_url}}"], "path": ["petpal", "api", "owners"] },
+            "description": "Ejecutar dos veces con el mismo email para disparar EmailAlreadyExistsException."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pets",
+      "description": "Mascotas asociadas a un owner.",
+      "item": [
+        {
+          "name": "Crear pet",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Firulais\",\n  \"species\": \"Perro\",\n  \"breed\": \"Labrador\",\n  \"birthDate\": \"2022-03-10\",\n  \"ownerId\": {{owner_id}}\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/pets", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets"] }
+          }
+        },
+        {
+          "name": "Listar pets",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/pets", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets"] }
+          }
+        },
+        {
+          "name": "Listar pets por owner",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/petpal/api/pets?ownerId={{owner_id}}",
+              "host": ["{{base_url}}"], "path": ["petpal", "api", "pets"],
+              "query": [{ "key": "ownerId", "value": "{{owner_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener pet por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/pets/{{pet_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets", "{{pet_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar pet",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Firulais\",\n  \"species\": \"Perro\",\n  \"breed\": \"Labrador Mestizo\",\n  \"birthDate\": \"2022-03-10\",\n  \"ownerId\": {{owner_id}}\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/pets/{{pet_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets", "{{pet_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar pet",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/petpal/api/pets/{{pet_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets", "{{pet_id}}"] }
+          }
+        },
+        {
+          "name": "Crear pet con owner inexistente -> 404",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Firulais\",\n  \"species\": \"Perro\",\n  \"ownerId\": 999999\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/pets", "host": ["{{base_url}}"], "path": ["petpal", "api", "pets"] },
+            "description": "Dispara OwnerNotFoundException."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vaccines",
+      "description": "Vacunas aplicadas a una mascota.",
+      "item": [
+        {
+          "name": "Registrar vacuna",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rabia\",\n  \"dateApplied\": \"2026-01-15\",\n  \"nextDueDate\": \"2027-01-15\",\n  \"petId\": {{pet_id}}\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/vaccines", "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines"] }
+          }
+        },
+        {
+          "name": "Listar vacunas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/vaccines", "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines"] }
+          }
+        },
+        {
+          "name": "Listar vacunas por pet",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/petpal/api/vaccines?petId={{pet_id}}",
+              "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines"],
+              "query": [{ "key": "petId", "value": "{{pet_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener vacuna por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/vaccines/{{vaccine_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines", "{{vaccine_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar vacuna",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/petpal/api/vaccines/{{vaccine_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines", "{{vaccine_id}}"] }
+          }
+        },
+        {
+          "name": "Registrar vacuna con nextDueDate inválida -> 400",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rabia\",\n  \"dateApplied\": \"2026-01-15\",\n  \"nextDueDate\": \"2026-01-01\",\n  \"petId\": {{pet_id}}\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/vaccines", "host": ["{{base_url}}"], "path": ["petpal", "api", "vaccines"] },
+            "description": "nextDueDate anterior a dateApplied -> DomainValidationException."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Veterinarians",
+      "description": "Veterinarios que atienden citas.",
+      "item": [
+        {
+          "name": "Crear veterinario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Dr. Carlos Ruiz\",\n  \"specialty\": \"Cirugia\"\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/veterinarians", "host": ["{{base_url}}"], "path": ["petpal", "api", "veterinarians"] }
+          }
+        },
+        {
+          "name": "Listar veterinarios",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/veterinarians", "host": ["{{base_url}}"], "path": ["petpal", "api", "veterinarians"] }
+          }
+        },
+        {
+          "name": "Obtener veterinario por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/veterinarians/{{veterinarian_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "veterinarians", "{{veterinarian_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar veterinario",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/petpal/api/veterinarians/{{veterinarian_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "veterinarians", "{{veterinarian_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "description": "Citas veterinarias.",
+      "item": [
+        {
+          "name": "Crear cita",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"date\": \"2026-09-01T10:00:00\",\n  \"reason\": \"Control anual\",\n  \"petId\": {{pet_id}},\n  \"veterinarianIds\": [{{veterinarian_id}}]\n}" },
+            "url": { "raw": "{{base_url}}/petpal/api/appointments", "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments"] }
+          }
+        },
+        {
+          "name": "Listar citas",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/appointments", "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments"] }
+          }
+        },
+        {
+          "name": "Listar citas por pet",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/petpal/api/appointments?petId={{pet_id}}",
+              "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments"],
+              "query": [{ "key": "petId", "value": "{{pet_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Obtener cita por id",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/petpal/api/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments", "{{appointment_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar estado de la cita",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/petpal/api/appointments/{{appointment_id}}/status?status=COMPLETED",
+              "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments", "{{appointment_id}}", "status"],
+              "query": [{ "key": "status", "value": "COMPLETED" }]
+            }
+          }
+        },
+        {
+          "name": "Actualizar estado con valor inválido -> 400",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{base_url}}/petpal/api/appointments/{{appointment_id}}/status?status=INVALIDO",
+              "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments", "{{appointment_id}}", "status"],
+              "query": [{ "key": "status", "value": "INVALIDO" }]
+            }
+          }
+        },
+        {
+          "name": "Eliminar cita",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/petpal/api/appointments/{{appointment_id}}", "host": ["{{base_url}}"], "path": ["petpal", "api", "appointments", "{{appointment_id}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}
